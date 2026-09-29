@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinhão Tech — Tecnologia e Carreira em Curitiba</title>
+  <meta name="description" content="Portal de notícias sobre tecnologia, inovação e carreira em Curitiba.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f5f5f7;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --soft: #86868b;
+      --link: #0066cc;
+      --blue: #0071e3;
+      --blue-hover: #0077ed;
+      --new: #b64400;
+      --line: #d2d2d7;
+      --max: 1024px;
+      --gutter: max(16px, calc((100vw - var(--max)) / 2));
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg); color: var(--text); letter-spacing: -.012em; line-height: 1.47;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font: inherit; cursor: pointer; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+    svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- Navegação global ---------- */
+    .gnav {
+      position: sticky; top: 0; z-index: 50; height: 44px;
+      background: rgba(250,250,252,.8); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    }
+    .gnav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .gnav a, .gnav button { color: var(--text); opacity: .8; font-size: 12px; background: none; border: none; transition: opacity .2s; }
+    .gnav a:hover, .gnav button:hover { opacity: 1; text-decoration: none; }
+    .brand { font-weight: 600; font-size: 14px !important; opacity: 1 !important; letter-spacing: -.02em; }
+    .brand b { color: var(--soft); font-weight: 500; }
+    .gnav-links { display: flex; gap: 32px; }
+    .gnav-icon { width: 16px; height: 16px; display: grid; place-items: center; }
+    @media (max-width: 834px) { .gnav-links { display: none; } }
+
+    /* Busca (painel suspenso) */
+    .search-panel {
+      position: fixed; top: 44px; left: 0; right: 0; z-index: 49; background: rgba(250,250,252,.96);
+      backdrop-filter: blur(20px); padding: 40px 0 48px; transform: translateY(-110%); transition: transform .4s cubic-bezier(.4,0,.2,1);
+    }
+    .search-open .search-panel { transform: none; }
+    .search-scrim { position: fixed; inset: 0; z-index: 48; background: rgba(232,232,237,.4); backdrop-filter: blur(8px);
+      opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .search-open .search-scrim { opacity: 1; pointer-events: auto; }
+    .search-panel .wrap { max-width: 720px; }
+    .search-input { display: flex; align-items: center; gap: 12px; }
+    .search-input span { width: 24px; height: 24px; color: var(--soft); flex-shrink: 0; }
+    .search-input input { border: none; outline: none; background: none; font: inherit; font-size: 24px; font-weight: 600; color: var(--text); width: 100%; }
+    .search-label { font-size: 12px; color: var(--soft); margin: 24px 0 10px; }
+    .search-results a { display: block; color: var(--text); font-size: 14px; font-weight: 600; padding: 6px 0; cursor: pointer; }
+    .search-results a:hover { color: var(--link); text-decoration: none; }
+
+    /* ---------- Chapter nav (editorias) ---------- */
+    .chapters { border-bottom: 1px solid var(--line); background: var(--bg); }
+    .chapters ul { list-style: none; display: flex; justify-content: center; gap: 4px; overflow-x: auto; padding: 18px 16px 12px; scrollbar-width: none; }
+    .chapters ul::-webkit-scrollbar { display: none; }
+    .chapters button { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px; flex-shrink: 0; color: var(--text); }
+    .chapters .ic { width: 38px; height: 38px; color: var(--text); transition: color .2s; }
+    .chapters button:hover .ic, .chapters button:hover .lbl { color: var(--link); }
+    .chapters .lbl { font-size: 12px; }
+    .chapters .tag { font-size: 10px; color: var(--new); margin-top: -4px; min-height: 14px; }
+
+    /* ---------- Cabeçalho da página ---------- */
+    .headline { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-top: 64px; padding-bottom: 40px; flex-wrap: wrap; }
+    .headline h1 { font-size: clamp(48px, 9vw, 80px); font-weight: 600; letter-spacing: -.015em; line-height: 1.05; }
+    .headline .tagline { text-align: right; }
+    .headline .tagline p { font-size: clamp(21px, 2.6vw, 28px); font-weight: 600; line-height: 1.14; letter-spacing: .007em; }
+    .headline .tagline a { display: inline-block; margin-top: 10px; font-size: 17px; }
+    @media (max-width: 734px) { .headline .tagline { text-align: left; } }
+    .chev::after { content: " ›"; }
+
+    /* ---------- Seções ---------- */
+    section { padding: 72px 0 80px; scroll-margin-top: 44px; }
+    .alt { background: var(--bg-alt); }
+    .sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+    .sec-head h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 600; line-height: 1.08; letter-spacing: -.003em; }
+    .sec-head a { font-size: 17px; }
+
+    /* ---------- Carrossel ---------- */
+    .carousel { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter);
+      padding: 4px var(--gutter) 28px; scrollbar-width: none; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .carousel > * { scroll-snap-align: start; flex-shrink: 0; }
+    .paddles { display: flex; justify-content: flex-end; gap: 16px; padding: 0 var(--gutter); }
+    .paddle { width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(210,210,215,.64); color: rgba(0,0,0,.56);
+      display: grid; place-items: center; transition: background .2s; }
+    .paddle:hover:not(:disabled) { background: rgba(223,223,227,.7); color: rgba(0,0,0,.64); }
+    .paddle:disabled { opacity: .36; cursor: default; }
+    .paddle span { width: 18px; height: 18px; }
+
+    /* Visual tipográfico (no lugar de fotos) */
+    .visual { display: grid; place-items: center; overflow: hidden; position: relative; }
+    .visual span { font-weight: 700; letter-spacing: -.04em; line-height: 1; text-align: center; padding: 0 16px;
+      background: var(--vg); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .v-tech     { --vg: linear-gradient(120deg, #00a651, #00b0ff); --vb: radial-gradient(circle at 50% 60%, #e1f8ec, #f5f5f7 70%); }
+    .v-carreira { --vg: linear-gradient(120deg, #5e5ce6, #bf5af2); --vb: radial-gradient(circle at 50% 60%, #ecebff, #f5f5f7 70%); }
+    .v-startups { --vg: linear-gradient(120deg, #ff6b00, #ff2d55); --vb: radial-gradient(circle at 50% 60%, #ffeee3, #f5f5f7 70%); }
+    .v-eventos  { --vg: linear-gradient(120deg, #ff2d55, #af52de); --vb: radial-gradient(circle at 50% 60%, #fdebf3, #f5f5f7 70%); }
+    .v-educacao { --vg: linear-gradient(120deg, #0a84ff, #30c9b7); --vb: radial-gradient(circle at 50% 60%, #e3f1ff, #f5f5f7 70%); }
+
+    /* Card grande (linha de manchetes) */
+    .lineup { width: min(372px, 84vw); display: flex; flex-direction: column; }
+    .lineup .visual { height: 400px; border-radius: 28px; background: var(--vb); }
+    .lineup .visual span { font-size: 84px; }
+    .lineup .info { padding: 28px 8px 0; display: flex; flex-direction: column; flex: 1; }
+    .new { color: var(--new); font-size: 14px; font-weight: 600; min-height: 20px; }
+    .lineup h3 { font-size: 24px; font-weight: 600; line-height: 1.17; margin: 6px 0 10px; letter-spacing: .009em; }
+    .lineup p { color: var(--text); font-size: 17px; flex: 1; }
+    .lineup .by { color: var(--muted); font-size: 14px; margin-top: 12px; }
+    .actions { display: flex; align-items: center; gap: 24px; margin-top: 24px; }
+    .btn { background: var(--blue); color: #fff; border: none; border-radius: 980px; padding: 9px 20px; font-size: 14px; transition: background .2s; }
+    .btn:hover { background: var(--blue-hover); }
+    .link-btn { background: none; border: none; color: var(--link); font-size: 14px; }
+    .link-btn:hover { text-decoration: underline; }
+
+    /* Cards "Por que ler" */
+    .why { width: min(313px, 78vw); min-height: 300px; background: #fff; border-radius: 28px; padding: 32px;
+      box-shadow: 2px 4px 12px rgba(0,0,0,.08); transition: transform .3s, box-shadow .3s; }
+    .why:hover { transform: scale(1.016); box-shadow: 2px 4px 16px rgba(0,0,0,.16); }
+    .why .ic { width: 52px; height: 52px; margin-bottom: 20px; }
+    .why p { font-size: 21px; font-weight: 600; line-height: 1.19; color: var(--muted); }
+    .why p b { color: var(--text); }
+
+    /* Tiles escuros "Carreira em foco" */
+    .dark-tile { width: min(372px, 84vw); height: 500px; border-radius: 28px; background: #000; color: #f5f5f7; padding: 32px;
+      display: flex; flex-direction: column; position: relative; cursor: pointer; overflow: hidden; transition: transform .3s; }
+    .dark-tile:hover { transform: scale(1.012); }
+    .dark-tile .kick { font-size: 17px; font-weight: 600; color: #a1a1a6; }
+    .dark-tile h3 { font-size: 28px; font-weight: 600; line-height: 1.14; margin-top: 8px; }
+    .dark-tile .visual { flex: 1; }
+    .dark-tile .visual span { font-size: 96px; }
+    .plus { position: absolute; right: 20px; bottom: 20px; width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: #333336; color: #d6d6d7; display: grid; place-items: center; transition: background .2s; }
+    .dark-tile:hover .plus { background: #424245; }
+    .plus span { width: 16px; height: 16px; }
+
+    /* Todas as notícias */
+    .segmented { display: inline-flex; background: var(--bg-alt); border-radius: 980px; padding: 4px; gap: 2px; margin-bottom: 32px; flex-wrap: wrap; }
+    .segmented button { background: none; border: none; border-radius: 980px; padding: 7px 16px; font-size: 14px; color: var(--text); transition: background .2s; }
+    .segmented button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); font-weight: 600; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 44px 24px; }
+    .item { cursor: pointer; }
+    .item .visual { height: 210px; border-radius: 18px; background: var(--vb); transition: transform .3s; }
+    .item:hover .visual { transform: scale(1.02); }
+    .item .visual span { font-size: 56px; }
+    .item .cat { font-size: 12px; color: var(--muted); margin-top: 18px; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+    .item h4 { font-size: 19px; font-weight: 600; line-height: 1.21; margin: 4px 0 8px; }
+    .item p { font-size: 14px; color: var(--muted); }
+    .item .more { display: inline-block; font-size: 14px; margin-top: 10px; color: var(--link); }
+    .empty { color: var(--muted); font-size: 17px; }
+
+    /* Vagas (estilo comparação) */
+    .compare { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+    @media (max-width: 834px) { .compare { grid-template-columns: repeat(2, 1fr); } }
+    .job { text-align: center; padding: 36px 16px; border-bottom: 1px solid var(--line); }
+    .job .badge { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 18px; display: grid; place-items: center; background: var(--vb); }
+    .job .badge span { font-size: 22px; font-weight: 700; background: var(--vg); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .job h4 { font-size: 19px; font-weight: 600; line-height: 1.2; }
+    .job .emp { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    .job .sal { font-size: 24px; font-weight: 600; margin: 18px 0 2px; }
+    .job .per { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+
+    /* Agenda */
+    .events { background: #fff; border-radius: 28px; overflow: hidden; }
+    .event { display: grid; grid-template-columns: 90px 1fr auto; gap: 20px; align-items: center; padding: 24px 32px; border-bottom: 1px solid var(--line); }
+    .event:last-child { border-bottom: none; }
+    .event .d { text-align: center; }
+    .event .d b { display: block; font-size: 40px; font-weight: 600; line-height: 1; }
+    .event .d small { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+    .event h4 { font-size: 21px; font-weight: 600; }
+    .event p { font-size: 14px; color: var(--muted); }
+    @media (max-width: 600px) { .event { grid-template-columns: 64px 1fr; padding: 20px; } .event .link-btn { grid-column: 2; justify-self: start; } .event .d b { font-size: 30px; } }
+
+    /* Newsletter */
+    .news { text-align: center; }
+    .news h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 600; }
+    .news p { font-size: 21px; color: var(--muted); margin: 10px auto 28px; max-width: 560px; }
+    .news form { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .news input { width: min(360px, 100%); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font: inherit; font-size: 17px; }
+    .news input:focus { outline: 4px solid rgba(0,125,250,.3); border-color: var(--blue); }
+    .news .btn { font-size: 17px; padding: 12px 24px; }
+    .news .ok { font-size: 17px; font-weight: 600; }
+
+    /* Rodapé */
+    footer { background: var(--bg-alt); color: var(--muted); font-size: 12px; line-height: 1.33; padding: 20px 0 32px; }
+    .fnotes { padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .fcols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+    @media (max-width: 734px) { .fcols { grid-template-columns: repeat(2, 1fr); } }
+    .fcols h5 { color: var(--text); font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+    .fcols a { display: block; color: var(--muted); margin-bottom: 8px; }
+    .fcols a:hover { color: var(--text); }
+    .flegal { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 16px; }
+
+    /* Modal da matéria */
+    .modal { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.48); overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .modal.open { opacity: 1; pointer-events: auto; }
+    .sheet { max-width: 980px; margin: 40px auto; background: #fff; border-radius: 28px; position: relative;
+      transform: translateY(40px); transition: transform .4s cubic-bezier(.4,0,.2,1); }
+    .modal.open .sheet { transform: none; }
+    @media (max-width: 734px) { .sheet { margin: 12px; } }
+    .close { position: sticky; top: 16px; float: right; margin: 16px 16px 0 0; z-index: 2; width: 36px; height: 36px; border-radius: 50%;
+      border: none; background: #333336; color: #d6d6d7; display: grid; place-items: center; }
+    .close:hover { background: #424245; }
+    .close span { width: 14px; height: 14px; }
+    .sheet-body { padding: 72px clamp(24px, 8vw, 96px) 80px; }
+    .sheet-body .cat { font-size: 17px; font-weight: 600; color: var(--new); }
+    .sheet-body h2 { font-size: clamp(32px, 5vw, 48px); font-weight: 600; line-height: 1.08; margin: 8px 0 20px; }
+    .sheet-body .lead { font-size: 21px; color: var(--muted); font-weight: 500; }
+    .sheet-body .by { font-size: 14px; color: var(--muted); margin: 16px 0 36px; }
+    .sheet-body .visual { height: 320px; border-radius: 18px; background: var(--vb); margin-bottom: 40px; }
+    .sheet-body .visual span { font-size: clamp(64px, 12vw, 120px); }
+    .sheet-body p.txt { font-size: 19px; line-height: 1.58; margin-bottom: 22px; }
+  </style>
+</head>
+<body>
+
+  <!-- Navegação global -->
+  <nav class="gnav" aria-label="Global">
+    <div class="wrap">
+      <a href="#" class="brand" id="home">pinhão<b>.tech</b></a>
+      <div class="gnav-links">
+        <a href="#manchetes">Manchetes</a>
+        <a href="#carreira">Carreira</a>
+        <a href="#todas">Notícias</a>
+        <a href="#vagas">Vagas</a>
+        <a href="#agenda">Agenda</a>
+        <a href="#newsletter">Newsletter</a>
+      </div>
+      <button class="gnav-icon" id="searchBtn" aria-label="Buscar">
+        <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div id="searchUI">
+    <div class="search-scrim" id="searchScrim"></div>
+    <div class="search-panel">
+      <div class="wrap">
+        <label class="search-input">
+          <span><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg></span>
+          <input id="search" type="search" placeholder="Buscar no pinhão.tech" aria-label="Buscar">
+        </label>
+        <div class="search-label" id="searchLabel">Links rápidos</div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editorias -->
+  <nav class="chapters" aria-label="Editorias">
+    <ul id="chapters"></ul>
+  </nav>
+
+  <main>
+    <div class="wrap headline">
+      <h1>Notícias</h1>
+      <div class="tagline">
+        <p>Tecnologia e carreira em Curitiba.<br>Direto ao ponto.</p>
+        <a href="#newsletter" class="chev">Assine a newsletter</a>
+      </div>
+    </div>
+
+    <!-- Manchetes -->
+    <section id="manchetes" style="padding-top:24px">
+      <div class="wrap sec-head">
+        <h2>Conheça as manchetes.</h2>
+        <a href="#todas" class="chev">Ver todas as notícias</a>
+      </div>
+      <div class="carousel" id="lineup"></div>
+      <div class="paddles" data-for="lineup"></div>
+    </section>
+
+    <!-- Por que ler -->
+    <section class="alt">
+      <div class="wrap sec-head"><h2>Por que ler o pinhão.tech.</h2></div>
+      <div class="carousel" id="why"></div>
+      <div class="paddles" data-for="why"></div>
+    </section>
+
+    <!-- Carreira em foco -->
+    <section id="carreira">
+      <div class="wrap sec-head">
+        <h2>Carreira em foco.</h2>
+        <a href="#todas" class="chev" data-filter="carreira">Todas de carreira</a>
+      </div>
+      <div class="carousel" id="focus"></div>
+      <div class="paddles" data-for="focus"></div>
+    </section>
+
+    <!-- Todas as notícias -->
+    <section id="todas" class="alt">
+      <div class="wrap">
+        <div class="sec-head"><h2 id="gridTitle">Todas as notícias.</h2></div>
+        <div class="segmented" id="segmented"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+
+    <!-- Vagas -->
+    <section id="vagas">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2>Vagas em destaque.</h2>
+          <span style="color:var(--muted);font-size:17px">Curitiba e região</span>
+        </div>
+        <div class="compare" id="jobs"></div>
+      </div>
+    </section>
+
+    <!-- Agenda -->
+    <section id="agenda" class="alt">
+      <div class="wrap">
+        <div class="sec-head"><h2>Agenda tech.</h2></div>
+        <div class="events" id="events"></div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section id="newsletter" class="news">
+      <div class="wrap">
+        <h2>Fique por dentro.</h2>
+        <p>Toda segunda, as notícias, vagas e eventos de tecnologia de Curitiba no seu e-mail.</p>
+        <form id="nlForm">
+          <input type="email" placeholder="E-mail" required aria-label="E-mail">
+          <button class="btn" type="submit">Inscrever-se</button>
+        </form>
+        <div class="ok" id="nlOk" hidden>Pronto. Você vai receber a próxima edição na segunda.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="fnotes">
+        <p>As matérias, vagas e eventos desta página são conteúdo de exemplo, criado para demonstração do layout.</p>
+      </div>
+      <div class="fcols">
+        <div><h5>Editorias</h5><a href="#todas">Tecnologia</a><a href="#todas">Carreira</a><a href="#todas">Startups</a><a href="#todas">Educação</a></div>
+        <div><h5>Carreira</h5><a href="#vagas">Vagas</a><a href="#carreira">Guias de carreira</a><a href="#todas">Mentorias</a></div>
+        <div><h5>Comunidade</h5><a href="#agenda">Agenda</a><a href="#agenda">Meetups</a><a href="#newsletter">Newsletter</a></div>
+        <div><h5>Sobre</h5><a href="#">Quem somos</a><a href="#">Contato</a><a href="#">Anuncie</a></div>
+      </div>
+      <div class="flegal">
+        <span>Copyright © 2026 Pinhão Tech. Todos os direitos reservados.</span>
+        <span>Brasil · Curitiba, PR</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <script>
+    const ICONS = {
+      todas:    '<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 9h10M7 13h10M7 17h6"/>',
+      tech:     '<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/><path d="m10 9-2 1.5 2 1.5M14 9l2 1.5-2 1.5"/>',
+      carreira: '<rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M3 13h18"/>',
+      startups: '<path d="M12 21c-4-3-4-9 0-12 4 3 4 9 0 12z"/><path d="M12 9V3M8 21h8"/><path d="M5 14c1.5-2 4-2.5 7-1M19 14c-1.5-2-4-2.5-7-1"/>',
+      eventos:  '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="2"/>',
+      educacao: '<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5M22 9v6"/>',
+      vagas:    '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>',
+    };
+    const svg = (p, sw = 1.5) => `<svg viewBox="0 0 24 24" style="stroke-width:${sw}">${p}</svg>`;
+
+    const CATS = { todas: "Todas", tech: "Tecnologia", carreira: "Carreira", startups: "Startups", eventos: "Eventos", educacao: "Educação" };
+
+    const NOTICIAS = [
+      {
+        id: 1, cat: "carreira", destaque: true, novo: true, visual: "SQL", autor: "Redação", tempo: "há 1 hora", leitura: 5,
+        titulo: "Demanda por profissionais de dados cresce em Curitiba",
+        resumo: "Empresas da capital disputam analistas e engenheiros de dados. Vagas híbridas são maioria.",
+        texto: [
+          "O mercado curitibano de tecnologia segue aquecido para quem trabalha com dados. Levantamento feito pela redação com base em anúncios publicados nos últimos 90 dias mostra que analistas, cientistas e engenheiros de dados estão entre os perfis mais procurados da cidade.",
+          "A maior parte das oportunidades é em regime híbrido, com dois ou três dias presenciais por semana. Segundo recrutadores ouvidos pela reportagem, o conhecimento em SQL, Python e ferramentas de nuvem continua sendo a porta de entrada, mas a capacidade de comunicar resultados para áreas de negócio tem pesado cada vez mais.",
+          "Para quem está em transição de carreira, a dica é montar um portfólio com projetos que usem dados públicos — como os da própria Prefeitura de Curitiba — e mostrar o raciocínio por trás de cada análise."
+        ]
+      },
+      {
+        id: 2, cat: "tech", destaque: true, novo: true, visual: "IA", autor: "Equipe de Tecnologia", tempo: "há 3 horas", leitura: 4,
+        titulo: "IA generativa entra na rotina de pequenas empresas",
+        resumo: "De atendimento a contabilidade, negócios da região metropolitana relatam ganhos — e novos desafios.",
+        texto: [
+          "Pequenas e médias empresas de Curitiba e região vêm adotando ferramentas de inteligência artificial generativa para tarefas do dia a dia, como responder clientes, redigir propostas e organizar planilhas.",
+          "Empreendedores relatam economia de tempo, mas alertam para a necessidade de revisar tudo o que é produzido e de cuidar da privacidade dos dados dos clientes, em linha com a LGPD.",
+          "Para profissionais de tecnologia, o movimento abre espaço para consultorias de implantação e treinamento — um nicho que tem atraído freelancers e pequenas software houses locais."
+        ]
+      },
+      {
+        id: 3, cat: "startups", destaque: true, visual: "Agtech", autor: "Redação", tempo: "há 5 horas", leitura: 3,
+        titulo: "Vale do Pinhão aposta em agtech e cidades inteligentes",
+        resumo: "Programas de aceleração locais priorizam soluções para o agronegócio e a mobilidade urbana.",
+        texto: [
+          "O ecossistema de inovação de Curitiba, conhecido como Vale do Pinhão, tem concentrado esforços em duas frentes com forte ligação com a economia regional: agtech e soluções para cidades inteligentes.",
+          "A proximidade com o agronegócio paranaense faz da capital um laboratório natural para startups que trabalham com sensoriamento, rastreabilidade e gestão de safra.",
+          "Para quem busca a primeira vaga em startup, esses segmentos costumam contratar perfis generalistas, dispostos a atuar em várias frentes do produto."
+        ]
+      },
+      {
+        id: 7, cat: "tech", destaque: true, visual: "Sec", autor: "Equipe de Tecnologia", tempo: "há 2 dias", leitura: 3,
+        titulo: "Cibersegurança: empresas locais ampliam times",
+        resumo: "Área tem déficit de profissionais e aceita migração de quem vem de infraestrutura e suporte.",
+        texto: [
+          "A segurança da informação deixou de ser assunto apenas de grandes corporações. Empresas de médio porte em Curitiba relatam aumento de tentativas de phishing e estão formando ou ampliando seus times de segurança.",
+          "Profissionais de suporte e infraestrutura têm vantagem na migração para a área, já que conhecem redes, sistemas operacionais e o comportamento dos usuários.",
+          "Certificações de entrada e laboratórios práticos (CTFs) são apontados como bons caminhos para começar."
+        ]
+      },
+      {
+        id: 4, cat: "carreira", foco: true, visual: "Jr → Pl", autor: "Coluna Carreira", tempo: "ontem", leitura: 6,
+        titulo: "Do júnior ao pleno: 7 habilidades que recrutadores mais cobram.",
+        resumo: "Git, testes, comunicação escrita e autonomia aparecem no topo da lista.",
+        texto: [
+          "A transição de júnior para pleno é um dos momentos mais delicados da carreira em tecnologia. Conversamos com líderes técnicos de empresas curitibanas para entender o que faz diferença na promoção.",
+          "Entre os pontos mais citados estão: domínio de Git e fluxo de pull requests, escrita de testes automatizados, clareza na comunicação escrita, capacidade de estimar tarefas, leitura de código alheio, noções de arquitetura e autonomia para destravar problemas.",
+          "Outro conselho recorrente: documentar as próprias entregas ao longo do ano facilita — e muito — a conversa de promoção."
+        ]
+      },
+      {
+        id: 8, cat: "startups", foco: true, visual: "S ou G?", autor: "Redação", tempo: "há 3 dias", leitura: 3,
+        titulo: "Startup ou empresa grande? Quem passou pelas duas conta.",
+        resumo: "Ritmo, aprendizado e estabilidade pesam de formas diferentes em cada fase da carreira.",
+        texto: [
+          "Ouvimos profissionais que passaram pelos dois mundos. Em startups, destacam a velocidade de aprendizado e a proximidade com decisões de produto. Em empresas maiores, a estrutura, os processos e a possibilidade de mentoria.",
+          "Não há resposta única: a escolha depende do momento de vida, da tolerância a risco e do tipo de aprendizado que cada pessoa busca.",
+          "Uma dica comum: avalie a liderança direta. Um bom gestor faz mais diferença do que o tamanho da empresa."
+        ]
+      },
+      {
+        id: 9, cat: "carreira", foco: true, visual: "Mentoria", autor: "Coluna Carreira", tempo: "há 4 dias", leitura: 4,
+        titulo: "Mulheres na tecnologia: mentoria gratuita em Curitiba.",
+        resumo: "Programas conectam iniciantes a profissionais experientes para acelerar a entrada no mercado.",
+        texto: [
+          "Coletivos e comunidades de Curitiba mantêm programas de mentoria voltados a mulheres que querem entrar ou crescer na área de tecnologia.",
+          "Os encontros incluem revisão de currículo, simulação de entrevistas e acompanhamento de projetos de portfólio.",
+          "Participantes destacam que, além do conteúdo técnico, a rede de apoio é decisiva para permanecer na área."
+        ]
+      },
+      {
+        id: 6, cat: "educacao", foco: true, visual: "Bootcamp", autor: "Redação", tempo: "há 2 dias", leitura: 4,
+        titulo: "Cursos livres e bootcamps: como escolher bem.",
+        resumo: "Especialistas indicam avaliar grade prática, empregabilidade real e suporte pós-curso.",
+        texto: [
+          "Com a oferta crescente de cursos rápidos em programação, dados e design, escolher onde estudar virou uma decisão difícil.",
+          "A recomendação de especialistas é olhar além da propaganda: peça para ver projetos de ex-alunos, confira se a grade tem prática real com código e pergunte como funciona o apoio na busca por emprego.",
+          "Universidades da cidade também oferecem cursos de extensão e especializações noturnas, uma alternativa para quem precisa conciliar estudo e trabalho."
+        ]
+      },
+      {
+        id: 5, cat: "eventos", visual: "Meetup", autor: "Agenda", tempo: "ontem", leitura: 2,
+        titulo: "Comunidades de desenvolvedores retomam meetups mensais",
+        resumo: "Encontros gratuitos no centro reúnem devs de front-end, back-end e dados.",
+        texto: [
+          "Grupos de desenvolvedores de Curitiba voltaram a organizar encontros presenciais mensais, com palestras curtas, networking e, claro, pinhão nos meses de inverno.",
+          "Os meetups são gratuitos e abertos a iniciantes. Para quem está começando, participar é uma das formas mais eficazes de conhecer pessoas do mercado e descobrir vagas que nem chegam a ser anunciadas.",
+          "A redação mantém uma agenda atualizada nesta página."
+        ]
+      },
+      {
+        id: 10, cat: "eventos", visual: "48h", autor: "Agenda", tempo: "há 5 dias", leitura: 2,
+        titulo: "Hackathon universitário vai repensar o transporte público",
+        resumo: "Equipes terão 48 horas para criar protótipos. Inscrições abertas a estudantes de todas as áreas.",
+        texto: [
+          "Estudantes de diferentes cursos poderão participar de uma maratona de programação focada em mobilidade urbana em Curitiba.",
+          "Os desafios envolvem informação ao passageiro, acessibilidade e uso de dados abertos de transporte.",
+          "Hackathons são uma porta de entrada valiosa: além de prêmios, rendem projetos para o portfólio e contato direto com empresas patrocinadoras."
+        ]
+      }
+    ];
+
+    const WHY = [
+      { ic: ICONS.todas,    cor: "#0071e3", t: "<b>Curadoria local.</b> Só o que importa para o ecossistema tech de Curitiba." },
+      { ic: ICONS.carreira, cor: "#bf5af2", t: "<b>Foco em carreira.</b> Guias práticos para cada fase, do estágio à liderança." },
+      { ic: ICONS.vagas,    cor: "#00a651", t: "<b>Vagas selecionadas.</b> Oportunidades com faixa salarial sempre que possível." },
+      { ic: ICONS.eventos,  cor: "#ff6b00", t: "<b>Agenda da comunidade.</b> Meetups, workshops e hackathons num só lugar." },
+      { ic: ICONS.educacao, cor: "#0a84ff", t: "<b>Aprender sempre.</b> Cursos, bootcamps e trilhas avaliados com critério." }
+    ];
+
+    const VAGAS = [
+      { cargo: "Dev Back-end Pleno", empresa: "Fintech · Híbrido", salario: "R$ 9–12 mil", cat: "tech", sigla: "BE" },
+      { cargo: "Analista de Dados Jr.", empresa: "Varejo · Híbrido", salario: "R$ 4,5–6 mil", cat: "carreira", sigla: "DA" },
+      { cargo: "UX Designer", empresa: "Agtech · Remoto", salario: "R$ 7–9 mil", cat: "startups", sigla: "UX" },
+      { cargo: "Estágio Dev Web", empresa: "Software house · Presencial", salario: "R$ 1,8 mil", cat: "educacao", sigla: "WEB" }
+    ];
+
+    const AGENDA = [
+      { dia: "02", mes: "OUT", nome: "Meetup Front-end CWB", local: "Centro · gratuito" },
+      { dia: "09", mes: "OUT", nome: "Workshop: carreira em dados", local: "Online · gratuito" },
+      { dia: "18", mes: "OUT", nome: "Hackathon Mobilidade Urbana", local: "Campus universitário · inscrições abertas" }
+    ];
+
+    const $ = id => document.getElementById(id);
+    const byId = id => NOTICIAS.find(n => n.id === id);
+    let filtro = "todas";
+
+    // Editorias (chapter nav)
+    $("chapters").innerHTML = Object.entries(CATS).map(([k, nome]) => `
+      <li><button data-filter="${k}">
+        <span class="ic">${svg(ICONS[k], 1.2)}</span>
+        <span class="lbl">${nome}</span>
+        <span class="tag">${NOTICIAS.some(n => n.cat === k && n.novo) ? "Novo" : ""}</span>
+      </button></li>`).join("");
+
+    // Manchetes
+    $("lineup").innerHTML = NOTICIAS.filter(n => n.destaque).map(n => `
+      <article class="lineup">
+        <div class="visual v-${n.cat}"><span>${n.visual}</span></div>
+        <div class="info">
+          <span class="new">${n.novo ? "Novo" : ""}</span>
+          <h3>${n.titulo}</h3>
+          <p>${n.resumo}</p>
+          <span class="by">${CATS[n.cat]} · ${n.tempo} · ${n.leitura} min de leitura</span>
+          <div class="actions">
+            <button class="btn" data-open="${n.id}">Ler matéria</button>
+            <button class="link-btn chev" data-share="${n.id}">Compartilhar</button>
+          </div>
+        </div>
+      </article>`).join("");
+
+    // Por que ler
+    $("why").innerHTML = WHY.map(w => `
+      <div class="why"><div class="ic" style="color:${w.cor}">${svg(w.ic, 1.4)}</div><p>${w.t}</p></div>`).join("");
+
+    // Carreira em foco
+    $("focus").innerHTML = NOTICIAS.filter(n => n.foco).map(n => `
+      <article class="dark-tile" data-open="${n.id}">
+        <span class="kick">${CATS[n.cat]}</span>
+        <h3>${n.titulo}</h3>
+        <div class="visual v-${n.cat}"><span>${n.visual}</span></div>
+        <button class="plus" aria-label="Abrir matéria"><span>${svg('<path d="M12 5v14M5 12h14"/>', 2.4)}</span></button>
+      </article>`).join("");
+
+    // Grade com filtro
+    function renderGrid() {
+      $("segmented").innerHTML = Object.entries(CATS).map(([k, nome]) =>
+        `<button class="${k === filtro ? "on" : ""}" data-seg="${k}">${nome}</button>`).join("");
+      const lista = NOTICIAS.filter(n => filtro === "todas" || n.cat === filtro);
+      $("gridTitle").textContent = filtro === "todas" ? "Todas as notícias." : `${CATS[filtro]}.`;
+      $("grid").innerHTML = lista.length ? lista.map(n => `
+        <article class="item" data-open="${n.id}">
+          <div class="visual v-${n.cat}"><span>${n.visual}</span></div>
+          <div class="cat">${CATS[n.cat]}</div>
+          <h4>${n.titulo}</h4>
+          <p>${n.resumo}</p>
+          <span class="more chev">Ler matéria</span>
+        </article>`).join("") : `<p class="empty">Nenhuma notícia nesta editoria ainda.</p>`;
+    }
+    renderGrid();
+
+    // Vagas
+    $("jobs").innerHTML = VAGAS.map(v => `
+      <div class="job v-${v.cat}">
+        <div class="badge"><span>${v.sigla}</span></div>
+        <h4>${v.cargo}</h4>
+        <div class="emp">${v.empresa}</div>
+        <div class="sal">${v.salario}</div>
+        <div class="per">faixa mensal</div>
+        <a href="#" class="chev" onclick="return false">Ver vaga</a>
+      </div>`).join("");
+
+    // Agenda
+    $("events").innerHTML = AGENDA.map(a => `
+      <div class="event">
+        <div class="d"><b>${a.dia}</b><small>${a.mes}</small></div>
+        <div><h4>${a.nome}</h4><p>${a.local}</p></div>
+        <button class="link-btn chev">Adicionar à agenda</button>
+      </div>`).join("");
+
+    // Paddles dos carrosséis
+    const CHEV_L = svg('<path d="m15 5-7 7 7 7"/>', 2.4), CHEV_R = svg('<path d="m9 5 7 7-7 7"/>', 2.4);
+    document.querySelectorAll(".paddles").forEach(p => {
+      const track = $(p.dataset.for);
+      p.innerHTML = `<button class="paddle" aria-label="Anterior"><span>${CHEV_L}</span></button>
+                     <button class="paddle" aria-label="Próximo"><span>${CHEV_R}</span></button>`;
+      const [prev, next] = p.children;
+      const step = () => track.firstElementChild.offsetWidth + 20;
+      prev.onclick = () => track.scrollBy({ left: -step(), behavior: "smooth" });
+      next.onclick = () => track.scrollBy({ left: step(), behavior: "smooth" });
+      const update = () => {
+        prev.disabled = track.scrollLeft <= 2;
+        next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+      };
+      track.addEventListener("scroll", update, { passive: true });
+      addEventListener("resize", update);
+      update();
+    });
+
+    // Modal da matéria
+    function abrir(id) {
+      const n = byId(id);
+      $("sheet").innerHTML = `
+        <button class="close" id="closeBtn" aria-label="Fechar"><span>${svg('<path d="M18 6 6 18M6 6l12 12"/>', 2.6)}</span></button>
+        <div class="sheet-body">
+          <span class="cat">${CATS[n.cat]}</span>
+          <h2>${n.titulo}</h2>
+          <p class="lead">${n.resumo}</p>
+          <p class="by">Por ${n.autor} · ${n.tempo} · ${n.leitura} min de leitura</p>
+          <div class="visual v-${n.cat}"><span>${n.visual}</span></div>
+          ${n.texto.map(p => `<p class="txt">${p}</p>`).join("")}
+        </div>`;
+      $("modal").scrollTop = 0;
+      $("modal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function fechar() {
+      $("modal").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    // Busca
+    function renderBusca() {
+      const q = $("search").value.trim().toLowerCase();
+      const lista = q ? NOTICIAS.filter(n => (n.titulo + " " + n.resumo + " " + CATS[n.cat]).toLowerCase().includes(q))
+                      : NOTICIAS.filter(n => n.destaque);
+      $("searchLabel").textContent = q ? (lista.length ? "Resultados" : "Nenhum resultado") : "Links rápidos";
+      $("searchResults").innerHTML = lista.slice(0, 6).map(n => `<a data-open="${n.id}">→ ${n.titulo}</a>`).join("");
+    }
+    function toggleBusca(abrirBusca) {
+      document.body.classList.toggle("search-open", abrirBusca);
+      if (abrirBusca) { renderBusca(); setTimeout(() => $("search").focus(), 200); }
+    }
+    $("searchBtn").onclick = () => toggleBusca(!document.body.classList.contains("search-open"));
+    $("searchScrim").onclick = () => toggleBusca(false);
+    $("search").addEventListener("input", renderBusca);
+
+    // Cliques globais
+    document.addEventListener("click", e => {
+      if (e.target.closest("#closeBtn") || e.target === $("modal")) return fechar();
+
+      const open = e.target.closest("[data-open]");
+      if (open) { toggleBusca(false); return abrir(+open.dataset.open); }
+
+      const seg = e.target.closest("[data-seg]");
+      if (seg) { filtro = seg.dataset.seg; return renderGrid(); }
+
+      const f = e.target.closest("[data-filter]");
+      if (f) { e.preventDefault(); filtro = f.dataset.filter; renderGrid(); $("todas").scrollIntoView({ behavior: "smooth" }); }
+
+      const share = e.target.closest("[data-share]");
+      if (share) {
+        const n = byId(+share.dataset.share);
+        const txt = `${n.titulo} — pinhão.tech`;
+        if (navigator.share) navigator.share({ title: n.titulo, text: txt }).catch(() => {});
+        else navigator.clipboard?.writeText(txt).then(() => { share.textContent = "Copiado"; setTimeout(() => share.textContent = "Compartilhar", 1500); });
+      }
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") { fechar(); toggleBusca(false); }
+    });
+
+    $("home").onclick = e => { e.preventDefault(); scrollTo({ top: 0, behavior: "smooth" }); };
+    $("nlForm").onsubmit = e => { e.preventDefault(); $("nlForm").hidden = true; $("nlOk").hidden = false; };
+  </script>
+</body>
+</html>
